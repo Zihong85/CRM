@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.osu.workbench.dao.CustomerDao">
+    <select id="findByName" resultType="Customer">
+        select id,
+               owner,
+               name,
+               website,
+               phone,
+               createBy,
+               createTime,
+               editBy,
+               editTime,
+               contactSummary,
+               nextContactTime,
+               description,
+               address
+        from tbl_customer
+        where name = #{company}
+    </select>
+
+    <insert id="insert">
+        insert into tbl_customer(id,
+                                 owner,
+                                 name,
+                                 website,
+                                 phone,
+                                 createBy,
+                                 createTime,
+                                 contactSummary,
+                                 nextContactTime,
+                                 description,
+                                 address)
+
+        values (#{id},
+                #{owner},
+                #{name},
+                #{website},
+                #{phone},
+                #{createBy},
+                #{createTime},
+                #{contactSummary},
+                #{nextContactTime},
+                #{description},
+                #{address})
+    </insert>
+
+    <select id="selectCustomers" resultType="Customer">
+        select
+        c.id,
+        u.name as owner,
+        c.name,
+        c.website,
+        c.phone,
+        c.createBy,
+        c.createTime,
+        c.editBy,
+        c.editTime,
+        c.contactSummary,
+        c.nextContactTime,
+        c.description,
+        c.address from tbl_customer c join tbl_user u on c.owner = u.id
+        <where>
+            <if test="customer.owner != null and customer.owner != ''">
+                u.name like '%' #{customer.owner} '%'
+            </if>
+            <if test="customer.name != null and customer.name != ''">
+                and c.name like '%' #{customer.name} '%'
+            </if>
+            <if test="customer.phone != null and customer.phone != ''">
+                and c.phone like '%' #{customer.phone} '%'
+            </if>
+            <if test="customer.website != null and customer.website != ''">
+                and c.website like '%' #{customer.website} '%'
+            </if>
+        </where>
+        order by c.createTime desc limit #{skipCount}, #{pageSize};
+    </select>
+
+    <select id="total" resultType="java.lang.Integer">
+        select count(*)
+        from tbl_customer;
+    </select>
+
+    <delete id="delete">
+        delete from tbl_customer where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectCustomer" resultType="Customer">
+        select id, owner, name, website, phone, createBy, createTime, editBy, editTime, contactSummary, nextContactTime, description, address from tbl_customer where id = #{id}
+    </select>
+
+    <select id="selectCustomersByName" resultType="String">
+        select name from tbl_customer where name like '%' #{name} '%'
+    </select>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

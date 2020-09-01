@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.osu.workbench.dao.CustomerRemarkDao">
+	<insert id="insert">
+        insert into tbl_customer_remark(
+            id,
+            noteContent,
+            createTime,
+            createBy,
+            editFlag,
+            customerId
+        )
+
+        values(
+                  #{id},
+                  #{noteContent},
+                  #{createTime},
+                  #{createBy},
+                  #{editFlag},
+                  #{customerId}
+              )
+    </insert>
+
+    <delete id="deleteByIds">
+        delete from tbl_customer_remark where customerId in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="getCountByIds" resultType="int">
+        select count(*) from tbl_customer_remark where customerId in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectByCustomerId" resultType="CustomerRemark">
+        select id, noteContent, createBy, createTime, editBy, editTime, editFlag, customerId from tbl_customer_remark where customerId=#{customerId}
+    </select>
+
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

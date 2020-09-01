@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.osu.workbench.dao.ActivityDao">
+
+    <insert id="insertActivity">
+        insert into tbl_activity (id,
+                                  owner,
+                                  name,
+                                  startDate,
+                                  endDate,
+                                  cost,
+                                  description,
+                                  createTime,
+                                  createBy)
+        VALUES (#{id},
+                #{owner},
+                #{name},
+                #{startDate},
+                #{endDate},
+                #{cost},
+                #{description},
+                #{createTime},
+                #{createBy})
+    </insert>
+
+    <select id="selectActivities" resultType="Activity">
+        select a.id, u.name as owner, a.name, startDate, endDate, cost, description, a.createTime, a.createBy,
+        a.editTime, a.editBy from
+        tbl_activity a join tbl_user u on a.owner = u.id
+        <where>
+            <if test="activity.owner != null and activity.owner != ''">
+                u.name like '%' #{activity.owner} '%'
+            </if>
+            <if test="activity.name != null and activity.name != ''">
+                and a.name like '%' #{activity.name} '%'
+            </if>
+            <if test="activity.startDate != null and activity.startDate != ''">
+                and a.startDate &gt; #{activity.startDate}
+            </if>
+            <if test="activity.endDate != null and activity.endDate != ''">
+                and a.endDate &lt; #{activity.endDate}
+            </if>
+        </where>
+        order by a.createTime desc limit #{skipCount}, #{pageSize};
+    </select>
+
+    <select id="total" resultType="java.lang.Integer">
+        select count(*)
+        from tbl_activity;
+    </select>
+
+    <delete id="delete">
+        delete from tbl_activity where id in
+        <foreach collection="array" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectActivity" resultType="Activity">
+        select id,
+               owner,
+               name,
+               startDate,
+               endDate,
+               cost,
+               description,
+               createTime,
+               createBy,
+               editTime,
+               editBy
+        from tbl_activity
+        where id = #{id}
+    </select>
+
+    <update id="update">
+        update tbl_activity
+        set owner=#{owner},
+            name=#{name},
+            startDate=#{startDate},
+            endDate=#{endDate},
+            cost=#{cost},
+            description=#{description},
+            editTime=#{editTime},
+            editBy=#{editBy}
+
+        where id = #{id}
+    </update>
+
+    <select id="selectActivitiesByNameAndNotByClueId" resultType="Activity">
+        select a.id,
+               a.name,
+               a.startDate,
+               a.endDate,
+               u.name as owner
+        from tbl_activity a
+                 join tbl_user u
+                      on a.owner = u.id
+        where a.name like '%' #{activityName} '%'
+          and a.id not in (
+            select activityId
+            from tbl_clue_activity_relation
+            where clueId = #{clueId}
+        )
+    </select>
+
+    <select id="selectActivitiesByNameAndClueId" resultType="Activity">
+        select a.id,
+               a.name,
+               a.startDate,
+               a.endDate,
+               u.name as owner
+        from tbl_activity a
+                 join tbl_user u
+                      on a.owner = u.id
+        where a.name like '%' #{activityName} '%'
+          and a.id in (select activityId
+                       from tbl_clue_activity_relation
+                       where clueId = #{clueId})
+    </select>
+
+    <select id="selectActivitiesByName" resultType="Activity">
+        select id,
+               owner,
+               name,
+               startDate,
+               endDate,
+               cost,
+               description,
+               createTime,
+               createBy,
+               editTime,
+               editBy
+        from tbl_activity
+        where name like '%' #{activityName} '%'
+    </select>
+</mapper>
